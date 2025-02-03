@@ -189,7 +189,9 @@ def get_visits(registration_date: str, company_id: int = 91):
         return df_visits
     
     def data_processing(df_visits):
-        df_visits['id'] = pd.to_numeric(df_visits['registration_date'].str.replace('-', '')).round(0).astype(int)
+        df_visits['id'] = df_visits['id'] = df_visits['registration_date'].str.replace('-', '') + df_visits['hour'].astype(str)
+
+        df_visits['id'] = pd.to_numeric(df_visits['id']).round(0).astype(int)
         df_visits['registration_date'] = pd.to_datetime(df_visits['registration_date'])
         return df_visits
     
@@ -223,7 +225,7 @@ def upsert_visits(registration_date: str) -> None:
     
 def main():
     upsert_stores()
-    days = 3
+    days = 180
     for day in range(days):
         registration_date = date.today() - timedelta(days=day)
         registration_date = registration_date.strftime('%Y-%m-%d')
