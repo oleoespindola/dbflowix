@@ -21,7 +21,6 @@
         "marca.slug": "brand_slug",
         "nome": "name",
         "numero": "address_number",
-        "quantidade_pas": "service_points_quantity",
         "razao_social": "legal_name",
         "rua": "street",
         "segmento._id": "segment_id",
