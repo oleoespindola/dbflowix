@@ -53,9 +53,8 @@
         "brand_slug": "slug"
     },
     "columns_visits": {
-        "nome": "name",
-        "data": "date",
-        "hora_key": "hour_key",
+        "data": "registration_date",
+        "hora_key": "hour",
         "entrada": "entry",
         "frente_loja": "storefront",
         "conversao": "conversion",
@@ -94,9 +93,6 @@
         "entrada_funcionarios": "employee_entry",
         "disponibilidade_camera": "camera_availability",
         "empresa_id": "company_id",
-        "unidade_id": "unit_id",
-        "ano": "year",
-        "mes": "month",
-        "dia": "day"
+        "unidade_id": "store_id"
     }
 }

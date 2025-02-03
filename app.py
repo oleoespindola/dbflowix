@@ -124,11 +124,8 @@ def get_stores() -> pd.DataFrame:
         }
 
     def data_processing(df_stores: pd.DataFrame) -> pd.DataFrame:
-        
         df_stores['cameras'] = str(df_stores['cameras'])
-        
         df_stores['postal_code'] = pd.to_numeric(df_stores['postal_code'].str.replace('-', '')).round(0).astype(int)
-        
         return df_stores
 
     response = requests.get(url=f'https://api-flowix.before.com.br/api/v1/integracao/unidades', headers=get_headers())
@@ -138,7 +135,7 @@ def get_stores() -> pd.DataFrame:
         df_stores = rename_columns(df_stores=df_stores, columns_names=columns_names)
         df_stores = data_processing(df_stores=df_stores)
         return divide_tables(df_stores=df_stores, columns_names=columns_names)
-    return None
+    return pd.DataFrame()
 
 def upsert_stores() -> None:
     """
@@ -187,7 +184,13 @@ def get_visits(registration_date: str, company_id: int = 91):
         return columns_names
     
     def rename_columns(columns_names: str, df_visits: pd.DataFrame):
+        df_visits.drop(columns=[col for col in df_visits.columns if col not in columns_names['columns_visits'].keys()], inplace=True)
         df_visits.rename(columns=columns_names['columns_visits'], inplace=True)
+        return df_visits
+    
+    def data_processing(df_visits):
+        df_visits['id'] = pd.to_numeric(df_visits['registration_date'].str.replace('-', '')).round(0).astype(int)
+        df_visits['registration_date'] = pd.to_datetime(df_visits['registration_date'])
         return df_visits
     
     response = requests.get(url=f'https://api-flowix.before.com.br/api/v1/integracao/visitas/consolidado?empresa_id={company_id}&data={registration_date}', headers=get_headers())
@@ -195,9 +198,28 @@ def get_visits(registration_date: str, company_id: int = 91):
         df_visits = pd.DataFrame(response.json()['visitas'])
         columns_names = get_columns_names()
         df_visits = rename_columns(columns_names=columns_names, df_visits=df_visits)
+        df_visits = data_processing(df_visits)
         return df_visits
-    return None
+    return pd.DataFrame()
 
+def upsert_visits(registration_date: str) -> None:
+    engine = create_engine(get_engine_str())
+    Session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+    session = Session()
+    
+    df = get_visits(registration_date=registration_date)
+    if not df.empty:
+        df.to_sql(name='temp_visits', con=session.connection(), index=False, if_exists='replace', schema='dball')
+        query = f"""
+            INSERT INTO dbflowix.visits ({', '.join(df.columns)})
+            SELECT * FROM dball.temp_visits
+            ON DUPLICATE KEY UPDATE
+                {', '.join(f'{col} = VALUES({col})' for col in df.columns)}            
+        """
+        with session.connection() as conn:
+            conn.execute(text(query))
+            conn.execute(text('DROP TABLE IF EXISTS dball.temp_visits'))
+            conn.commit()
     
 def main():
     upsert_stores()
@@ -205,7 +227,7 @@ def main():
     for day in range(days):
         registration_date = date.today() - timedelta(days=day)
         registration_date = registration_date.strftime('%Y-%m-%d')
-        get_visits(registration_date=registration_date)
+        upsert_visits(registration_date=registration_date)
     
 if __name__ == '__main__':
     main()
