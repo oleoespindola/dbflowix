@@ -9,7 +9,6 @@
         "complemento": "address_complement",
         "empresa._id": "company_id",
         "empresa.nome": "company_name",
-        "empresa.tipo._id": "company_type_id",
         "empresa.tipo.nome": "company_type_name",
         "empresa.tipo.slug": "company_type_slug",
         "fuso._id": "timezone_id",
@@ -17,11 +16,11 @@
         "fuso.nome": "timezone_name",
         "geo.latitude": "latitude",
         "geo.longitude": "longitude",
-        "marca._id": "brand__id",
+        "marca._id": "brand_id",
         "marca.nome": "brand_name",
         "marca.slug": "brand_slug",
         "nome": "name",
-        "numero": "number",
+        "numero": "address_number",
         "quantidade_pas": "service_points_quantity",
         "razao_social": "legal_name",
         "rua": "street",
@@ -30,10 +29,7 @@
         "segmento.slug": "segment_slug",
         "telefone": "phone",
         "uf_nome": "state_name",
-        "uf_sigla": "state_code",
-        "valor_aluguel": "rent_value",
-        "valor_folha_pagamento": "payroll_value",
-        "valor_outros_custos": "other_costs_value"
+        "uf_sigla": "state_code"
     },
     "columns_companies": {
         "company_id": "id",
@@ -50,6 +46,11 @@
         "segment_id": "id",
         "segment_name": "name",
         "segment_slug": "slug"
+    },
+    "columns_brands": {
+        "brand_id": "id",
+        "brand_name": "name",
+        "brand_slug": "slug"
     },
     "columns_visits": {
         "nome": "name",
